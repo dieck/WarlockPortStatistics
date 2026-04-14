@@ -39,7 +39,10 @@ globals = {
   "GameFontGreenSmall",
   "LootFrame",
   "MasterLooterFrame",
-
+  "RaidNotice_AddMessage",
+  "RaidWarningFrame", 
+  "ChatTypeInfo",
+  
   -- misc custom
 	"AceGUIWidgetLSMlists",
 	"CUSTOM_CLASS_COLORS",

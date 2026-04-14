@@ -157,8 +157,8 @@ WarlockPortStatistics.wpsOptionsTable = {
       desc = "Enters Debug mode. Addon will have advanced output",
       type = "toggle",
       order = 98,
-      set = function(info,val) 
-		WarlockPortStatistics.db.factionrealm.debug = val 
+      set = function(info,val)
+		WarlockPortStatistics.db.factionrealm.debug = val
 		if WarlockPortStatistics.db.factionrealm.debug then
 			WarlockPortStatistics.spellId = tonumber(WarlockPortStatistics.db.factionrealm.debugSpellId)
 		else
@@ -185,8 +185,7 @@ WarlockPortStatistics.wpsOptionsTable = {
 	  get = function(info) return WarlockPortStatistics.db.factionrealm.debugSpellId end,
 	},
   }
-} 
-
+}
 function WarlockPortStatistics:OnInitialize()
   -- Code that you want to run when the addon is first loaded goes here.
   self.db = LibStub("AceDB-3.0"):New("WarlockPortStatisticsDB", defaults)
@@ -352,16 +351,16 @@ function WarlockPortStatistics:UNIT_SPELLCAST_CHANNEL_STOP(event, unit, dummy, s
 
 		self:Print("You ported " .. self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["target"] .. " <" .. tostring(self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["targetGuild"]) .. "> from " .. tostring(self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["targetLocation"]) .. " to " .. self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["playerLocation"])
 
-		if self.db.factionrealm.paymentreminderSelf 
-		  and self.db.factionrealm.paymentreminderSelfSec > 0 
+		if self.db.factionrealm.paymentreminderSelf
+		  and self.db.factionrealm.paymentreminderSelfSec > 0
 		  and not self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["paid"]
 		  then
 			self:ScheduleTimer("RemindSelf", self.db.factionrealm.paymentreminderSelfSec, self.db.factionrealm.lastChannel)
 			WarlockPortStatistics:Debug("RemindSelf starting in " .. tostring(self.db.factionrealm.paymentreminderSelfSec) .. "sec")
 		end
 
-		if self.db.factionrealm.paymentreminderCustomer 
-		  and self.db.factionrealm.paymentreminderCustomerSec > 0 
+		if self.db.factionrealm.paymentreminderCustomer
+		  and self.db.factionrealm.paymentreminderCustomerSec > 0
 		  and not self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["paid"]
 		  then
 			self:ScheduleTimer("RemindCustomer", self.db.factionrealm.paymentreminderCustomerSec, self.db.factionrealm.lastChannel)
