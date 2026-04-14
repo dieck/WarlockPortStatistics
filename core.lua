@@ -80,7 +80,7 @@ WarlockPortStatistics.wpsOptionsTable = {
 		get = function(info) return WarlockPortStatistics.db.factionrealm.paymentreminderSelfSec end
 	},
 	newline32 = { name="", type="description", order=32 },
-	
+
     paymentreminderCustomer = {
       name = "Remind Customer",
       desc = "Whisper reminder to customer:",
@@ -113,7 +113,7 @@ WarlockPortStatistics.wpsOptionsTable = {
 	newline39 = { name="", type="description", order=39 },
 
 	hdr_cleanups = { name="Cleansing", type="header", order=40 },
-			
+
 	excCleanseOld = {
 		name = "Cleanse old",
 		type = "execute",
@@ -121,7 +121,7 @@ WarlockPortStatistics.wpsOptionsTable = {
 		func = function(info) WarlockPortStatistics:cleanseOldEntries() end,
 	},
 	newline51 = { name="", type="description", order=51 },
-	
+
 	excCleanseOtherChars = {
 		name = "Cleanse other chars",
 		type = "execute",
@@ -129,7 +129,7 @@ WarlockPortStatistics.wpsOptionsTable = {
 		func = function(info) WarlockPortStatistics:cleanseOtherChars() end,
 	},
 	newline61 = { name="", type="description", order=61 },
-	
+
 	tglCleanseAllEntries = {
       name = "Confirm to ...",
       desc = "Confirm cleansing all",
@@ -187,7 +187,6 @@ WarlockPortStatistics.wpsOptionsTable = {
   }
 } 
 
-
 function WarlockPortStatistics:OnInitialize()
   -- Code that you want to run when the addon is first loaded goes here.
   self.db = LibStub("AceDB-3.0"):New("WarlockPortStatisticsDB", defaults)
@@ -203,19 +202,19 @@ function WarlockPortStatistics:OnInitialize()
 
   self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
   self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
- 
+
   self:RegisterChatCommand('wps', 'handleChatCommand');
   self:RegisterChatCommand('warlockportstatistics', 'handleChatCommand');
-  
+
   LibStub("AceConfig-3.0"):RegisterOptionsTable("WarlockPortStatistics", self.wpsOptionsTable)
   self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("WarlockPortStatistics", "Warlock Port Statistics")
-  
+
   self:ResetTradeTracking()
   self:RegisterEvent("TRADE_SHOW")
   self:RegisterEvent("TRADE_ACCEPT_UPDATE")
   self:RegisterEvent("TRADE_MONEY_CHANGED")
   self:RegisterEvent("TRADE_CLOSED")
-  
+
 end
 
 function WarlockPortStatistics:OnEnable()
@@ -223,7 +222,6 @@ end
 
 function WarlockPortStatistics:OnDisable()
 end
-
 
 function WarlockPortStatistics:FormatMoney(copper)
   local gold = math.floor(copper / 10000)
@@ -234,11 +232,11 @@ end
 
 function WarlockPortStatistics:cleanseOldEntries()
 	local weekago = time() - 7*24*60*60
-		
+
 	-- never change dict you are iterating on :)
 	local pstats = {}
 	local removed = 0
-	
+
 	for key,value in pairs(self.db.factionrealm.portstats) do
 		if key >= weekago then
 			pstats[key] = value
@@ -246,9 +244,9 @@ function WarlockPortStatistics:cleanseOldEntries()
 			removed = removed + 1
 		end
 	end
-	
+
 	self.db.factionrealm.portstats = pstats
-	
+
 	if (removed > 0) then
 		self:Print("Tidied " .. tostring(removed) .. " entries.")
 	else
@@ -262,7 +260,7 @@ function WarlockPortStatistics:cleanseOtherChars()
 	-- never change dict you are iterating on :)
 	local pstats = {}
 	local removed = 0
-	
+
 	for key,value in pairs(self.db.factionrealm.portstats) do
 		if value["player"] == player then
 			pstats[key] = value
@@ -270,7 +268,7 @@ function WarlockPortStatistics:cleanseOtherChars()
 			removed = removed + 1
 		end
 	end
-	
+
 	self.db.factionrealm.portstats = pstats
 
 	if (removed > 0) then
@@ -285,24 +283,21 @@ function WarlockPortStatistics:cleanseAllEntries()
 	self:Print("Cleared all entries.")
 end
 
-
 function WarlockPortStatistics:handleChatCommand(cmd)
 	self:CreatePortStatisticsFrame()
 end
 
-
 function WarlockPortStatistics:encounterChannel(atTime)
 	local tname = "-unknown-"
-	local trealm = "-not used-"
 	local portedFrom = "-unknown-"
 	local tguild = "-unknown-"
-	
+
 	local pname, prealm = UnitName("player")
 	local portedTo = GetSubZoneText() .. ", " .. GetZoneText()
 	local pguild, _, _= GetGuildInfo("player")
 
 	if UnitExists("target") then
-		tname, trealm = UnitName("target")
+		tname, _ = UnitName("target")
 		tguild, _, _= GetGuildInfo("target")
 
 		local portedFromMapID = C_Map.GetBestMapForUnit("target")
@@ -320,7 +315,7 @@ function WarlockPortStatistics:encounterChannel(atTime)
 		started = self.db.factionrealm.lastChannel,
 		stopped = nil
 	}
-		
+
 	if self.db.factionrealm.trackpayment and self.db.factionrealm.guildforfree and tguild == pguild and pguild ~= nil then
 		self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["paid"] = "Guild"
 	end
@@ -352,11 +347,11 @@ function WarlockPortStatistics:UNIT_SPELLCAST_CHANNEL_STOP(event, unit, dummy, s
 		if (self.db.factionrealm.portstats[self.db.factionrealm.lastChannel] == nil) then
 			self:encounterChannel(self.db.factionrealm.lastChannel)
 		end
-	
+
 		self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["stopped"] = time()
-		
+
 		self:Print("You ported " .. self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["target"] .. " <" .. tostring(self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["targetGuild"]) .. "> from " .. tostring(self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["targetLocation"]) .. " to " .. self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["playerLocation"])
-		
+
 		if self.db.factionrealm.paymentreminderSelf 
 		  and self.db.factionrealm.paymentreminderSelfSec > 0 
 		  and not self.db.factionrealm.portstats[self.db.factionrealm.lastChannel]["paid"]
@@ -372,9 +367,9 @@ function WarlockPortStatistics:UNIT_SPELLCAST_CHANNEL_STOP(event, unit, dummy, s
 			self:ScheduleTimer("RemindCustomer", self.db.factionrealm.paymentreminderCustomerSec, self.db.factionrealm.lastChannel)
 			WarlockPortStatistics:Debug("RemindCustomer starting in " .. tostring(self.db.factionrealm.paymentreminderCustomerSec) .. "sec")
 		end
-		
+
 	end
-	
+
 end
 
 function WarlockPortStatistics:RemindSelf(channelId)
@@ -382,10 +377,10 @@ function WarlockPortStatistics:RemindSelf(channelId)
 	if not self.db.factionrealm.paymentreminderSelf then return nil end
 	-- might have been cleansed in the meantime
 	if not self.db.factionrealm.portstats[channelId] then return nil end
-	
+
 	-- might have been paid in the meantime
 	if self.db.factionrealm.portstats[channelId]["paid"] then return nil end
-	
+
 	RaidNotice_AddMessage(RaidWarningFrame, "Payment from " .. self.db.factionrealm.portstats[channelId]["target"] .. "\nnot received yet!", ChatTypeInfo["RAID_WARNING"])
 	self:Print("Payment from " .. self.db.factionrealm.portstats[channelId]["target"] .. " not received yet!")
 end
@@ -395,7 +390,7 @@ function WarlockPortStatistics:RemindCustomer(channelId)
 	if not self.db.factionrealm.paymentreminderCustomer then return nil end
 	-- might have been cleansed in the meantime
 	if not self.db.factionrealm.portstats[channelId] then return nil end
-	
+
 	-- might have been paid in the meantime
 	if self.db.factionrealm.portstats[channelId]["paid"] then return nil end
 
@@ -403,7 +398,6 @@ function WarlockPortStatistics:RemindCustomer(channelId)
 		SendChatMessage(self.db.factionrealm.paymentreminderCustomerText, "WHISPER", nil, self.db.factionrealm.portstats[channelId]["target"])
 	end
 end
-
 
 function WarlockPortStatistics:ResetTradeTracking()
   self.tradeTracking = { tradePartner = "", acceptedMe = false, acceptedThem = false, myMoney = 0, theirMoney = 0 }
@@ -426,7 +420,7 @@ end
 function WarlockPortStatistics:TRADE_CLOSED()
   if self.tradeTracking["acceptedMe"] and self.tradeTracking["acceptedThem"] and self.tradeTracking["theirMoney"] > 0 and self.tradeTracking["myMoney"] == 0 then
     self:Debug("Received " .. self:FormatMoney(self.tradeTracking["theirMoney"]) .. " from " .. self.tradeTracking["tradePartner"])
-	
+
 	-- find latest self.db.factionrealm.portstats for tradePartner, not later as X min ago (5min?) and mark paid
 	local fiveMinAgo = time() - 5*60
 	for ts,ps in pairs(self.db.factionrealm.portstats) do
@@ -434,16 +428,15 @@ function WarlockPortStatistics:TRADE_CLOSED()
 			self.db.factionrealm.portstats[ts]["paid"] = self:FormatMoney(self.tradeTracking["theirMoney"])
 		end
 	end
-	
+
   end
   self:ResetTradeTracking()
 end
 
-
 function WarlockPortStatistics:CreatePortStatisticsFrame()
 	local ST = LibStub("ScrollingTable")
 
-	cols = {
+	local cols = {
 		{ name = "Timestamp", width = 110, align = "LEFT", field = "timestamp", sort = "asc", defaultsort = "asc"},
 		{ name = "Customer", width = 90, align = "LEFT", field = "target"},
 		{ name = "Guild", width = 80, align = "LEFT", field = "targetGuild"},
@@ -454,46 +447,45 @@ function WarlockPortStatistics:CreatePortStatisticsFrame()
 	end
 	tinsert(cols, { name = "Warlock", width = 100, align = "LEFT", field = "player"})
 	tinsert(cols, { name = "ported to", width = 120, align = "LEFT", field = "playerLocation"})
-	
+
 	local colors = {
 		{["r"] = 1.0, ["g"] = 1.0, ["b"] = 1.0, ["a"] = 1.0 },
 		{["r"] = 0.8, ["g"] = 0.8, ["b"] = 0.8, ["a"] = 1.0 },
 	}
 	local colorcounter = 0
-	
+
 	local data = {}
-	
+
 	-- prepare data
 	for _,ps in pairs(self.db.factionrealm.portstats) do
 
 		local row = {
-			-- default color 
+			-- default color
 			["color"] = colors[(colorcounter % table.getn(colors))+1],
 			["colorargs"] = nil,
 			["DoCellUpdate"] = nil,
 		}
 		colorcounter = colorcounter+1
 
-		-- override 
+		-- override
 		if ps["color"] then
 			row["color"] = ps["color"]
 		end
 
-
 		local rowcols = {}
-		
+
 		for _,col in ipairs(cols) do
 			local colfield = col["field"]
-			
+
 			local rowcolumn = {
 				["value"] = ps[colfield] or '-'
 			}
 
 			table.insert(rowcols, rowcolumn)
 		end
-		
+
 		row["cols"] = rowcols
-		
+
 		table.insert(data, row)
 	end
 
@@ -523,7 +515,7 @@ function WarlockPortStatistics:CreatePortStatisticsFrame()
 	frame:RegisterForDrag("LeftButton")
 	frame:SetScript("OnDragStart", frame.StartMoving)
 	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
-	
+
 	local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	title:SetPoint("TOP", 0, -5)
 	title:SetText("Warlock Port Statistics")
@@ -535,14 +527,11 @@ function WarlockPortStatistics:CreatePortStatisticsFrame()
 		--warningNote:SetTextColor(1,0,0,1)
 	end
 
-
-
 	local st = ST:CreateST(cols, 10, 18, nil, frame)
 	st.frame:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -38)
 
 	st:SetData(data)
-	
-	
+
 	function frame:ShowParent(parent)
 		self:SetParent(parent)
 		self:ClearAllPoints()
@@ -554,16 +543,14 @@ function WarlockPortStatistics:CreatePortStatisticsFrame()
 		self:SetParent(UIParent)
 		self:Hide()
 	end
-	
-	
+
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", -4, -4)
-	
+
 	tinsert(UISpecialFrames, "WPS_PortStatisticsFrame")
-	
+
 	return frame
 end
-
 
 -- for debug outputs
 function tprint (tbl, indent)
@@ -590,7 +577,6 @@ function tprint (tbl, indent)
 	toprint = toprint .. string.rep(" ", indent-2) .. "}"
 	return toprint
 end
-
 
 function WarlockPortStatistics:Debug(t, lvl)
 	if self.db.factionrealm.debug then
