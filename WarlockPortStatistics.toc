@@ -1,0 +1,16 @@
+## Interface: 11508
+## Title: WarlockPortStatistics
+## Notes: Lists which users where ported by Warlock
+## Author: dieck
+## Version: 20260413
+## SavedVariables: WarlockPortStatisticsDB
+## Dependencies: Ace3, LibTouristClassicEra
+
+embeds.xml
+
+warlockportstatistics.lua
+
+locale-enUS.lua
+
+core.lua
+
