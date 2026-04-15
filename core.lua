@@ -529,7 +529,7 @@ function WarlockPortStatistics:CreatePortStatisticsFrame()
 	local st = ST:CreateST(cols, 10, 18, nil, frame)
 	st.frame:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -38)
 	st.frame:SetBackdropColor(0.1, 0.1, 0.1, 0.25)
-	
+
 	st:SetData(data)
 
 	function frame:ShowParent(parent)
